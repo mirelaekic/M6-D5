@@ -42,16 +42,37 @@ router.get("/:id", async (req, res, next) => {
 })
 
 
-router.post("/", cloudMulter.single("productImage"), async (req, res, next) =>{
+router.post("/", async (req, res, next) =>{
       try {
         const newproduct = new ProductSchema(req.body)
-        newproduct.productImage = req.file.path //this is how we create the instance for the new element that we're going to add (that we pass between parenthesis)
+        console.log("OKKKKKKKKKKK")
         await newproduct.save()       // we add it through the save()
         res.status(201).send(newproduct)
       } catch (error) {
+        console.log(error)
         next(error)
       }
 })
+router.post("/:id/upload", cloudMulter.single("productImage"), async (req, res, next) =>{
+  try {
+    const newImage = { ...req.body, date: new Date() }
+  
+    const updatedProduct = await ProductSchema.findByIdAndUpdate(
+      req.params.id,  {
+        $set: {
+          productImage: req.file.path
+        },
+      },
+      { runValidators: true, new: true }
+    )
+    console.log(req.file, "AAAAAAAAA")
+    res.status(201).send(updatedProduct)
+  } catch (error) {
+    console.log(error)
+    next(error)
+  }
+})
+
 
 router.put("/:id", async (req, res, next) => {
   try {
