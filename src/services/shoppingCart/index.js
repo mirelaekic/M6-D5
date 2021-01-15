@@ -1,6 +1,7 @@
 const express = require("express")
 const cartModel = require("./schema")
-const productsModel = require("../products/schema")
+const ProductModel = require("../products/schema")
+const mongoose = require("mongoose")
 
 const shoppingCartRouter = express.Router()
 //create a new cart
@@ -14,46 +15,10 @@ shoppingCartRouter.post("/", async (req, res, next) => {
       next(error)
     }
   })
-  //6001748baf0fb43eacf2b357
-  //600174caaf0fb43eacf2b358
-// Add a product to the exsisting cart array :id is the cart id 
-shoppingCartRouter.post("/:id/add/:productsId", async (req, res, next) => {
-    try {
-      const products = await productsModel.decreaseProductsQuantity(
-        req.params.productsId,
-        req.body.quantity
-      )
-      if (products) {
-        const newProducts = { ...products.toObject(), quantity: req.body.quantity }
-  
-        const isProductThere = await cartModel.findProductsInCart(
-          req.params.id,
-          req.params.productsId
-        )
-        if (isProductThere) {
-          await cartModel.incrementCartQuantity(
-            req.params.id,
-            req.params.productsId,
-            req.body.quantity
-          )
-          res.send("Quantity incremented")
-        } else {
-          await cartModel.addProductsToCart(req.params.id, newProducts)
-          res.send("New products added!")
-        }
-      } else {
-        const error = new Error()
-        error.httpStatusCode = 404
-        next(error)
-      }
-    } catch (error) {
-      next(error)
-    }
-  })
   // GET the cart with the posted products
-  shoppingCartRouter.get("/:id/cart", async (req, res, next) => {
+  shoppingCartRouter.get("/:id", async (req, res, next) => {
     try {
-      const { cart } = await productsModel.findById(req.params.id, {
+      const { cart } = await cartModel.findById(req.params.id, {
         cart: 1,
         _id: 0,
       })
@@ -62,7 +27,54 @@ shoppingCartRouter.post("/:id/add/:productsId", async (req, res, next) => {
       next(error)
     }
   });
+  //6001748baf0fb43eacf2b357
+  //600174caaf0fb43eacf2b358
+  //CARTS
+  //60017269e95d14155c4a83d6 PRODUCT
+  //600180d99c03f44274d633ed
 
+shoppingCartRouter.post("/:id/cart/:productsId", async (req, res, next) => {
+    // add a book to the purchase history of the specified user
+    try {
+      const productId = req.params.productsId
+  
+      const buyProducts = await ProductModel.findById(productId, { _id: 0 })
+  
+      console.log(buyProducts)
+  
+      const productsToInsert = { ...buyProducts.toObject(), date: new Date() }
+      const modifiedCart = await cartModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          $push: { cart: productsToInsert },
+        },
+        { runValidators: true, new: true, findOneAndUpdate:false }
+      )
+      res.send(modifiedCart)
+    } catch (error) {
+      console.log(error)
+    }
+  })
+//Delete product in cart
+shoppingCartRouter.delete("/:id/cart/:productsId", async (req, res, next) => {
+    try {
+      const modifiedCart = await cartModel.findByIdAndUpdate(
+        req.params.id,
+        {
+          $pull: {
+            cart: { _id: mongoose.Types.ObjectId(req.params.productsId) }, // I need to specify a criteria to tell mongo which element of purchaseHistory needs to be removed. This criteria is to match _id
+          },
+        },
+        {
+          runValidators: true,
+          new: true,
+        }
+      )
+      res.send(modifiedCart)
+    } catch (error) {
+      next(error)
+    }
+  })
 // calculate the total in the cart
 shoppingCartRouter.get("/:id/calculate", async (req, res, next) => {
     try {

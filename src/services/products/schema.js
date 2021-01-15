@@ -1,5 +1,4 @@
-const { Schema } = require("mongoose")
-const mongoose = require("mongoose")
+const { Schema, model } = require("mongoose")
 
 const ProductSchema = new Schema(
   {
@@ -27,6 +26,7 @@ const ProductSchema = new Schema(
       type: String,
       required: true,
   },
+  availableQuantity: Number,
     reviews: [
         {
           user: String,
@@ -38,4 +38,12 @@ const ProductSchema = new Schema(
   { timestamps: true }
 )
 
-module.exports = mongoose.model("Product", ProductSchema)
+ProductSchema.static("decreaseProductsQuantity", async function (id, amount) {
+  const product = await ProductSchema.findOneAndUpdate(id, {
+    $inc: { availableQuantity: -amount },
+  })
+  return product
+})
+
+const ProductModel = model("Product", ProductSchema)
+module.exports = ProductModel;
