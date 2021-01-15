@@ -1,7 +1,12 @@
 const { Schema, model } = require("mongoose");
+const mongoose = require("mongoose")
 
 const cartSchema = new Schema(
   {
+    name: {
+        type: String,
+        required: true,
+      },
     cart: [
       {
         name: String,
@@ -54,5 +59,5 @@ cartSchema.static("calculateCartTotal", async function (id) {
 });
 
 const cartModel = model("cart", cartSchema);
-
-module.exports = cartModel;
+module.exports = mongoose.model("cart", cartSchema)
+//module.exports = cartModel;

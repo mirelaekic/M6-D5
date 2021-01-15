@@ -3,8 +3,20 @@ const cartModel = require("./schema")
 const productsModel = require("../products/schema")
 
 const shoppingCartRouter = express.Router()
-
-// Add a product to the cart array 
+//create a new cart
+shoppingCartRouter.post("/", async (req, res, next) => {
+    try {
+      const newCart = new cartModel(req.body)
+      const { _id } = await newCart.save()
+  
+      res.status(201).send(_id)
+    } catch (error) {
+      next(error)
+    }
+  })
+  //6001748baf0fb43eacf2b357
+  //600174caaf0fb43eacf2b358
+// Add a product to the exsisting cart array :id is the cart id 
 shoppingCartRouter.post("/:id/add/:productsId", async (req, res, next) => {
     try {
       const products = await productsModel.decreaseProductsQuantity(
@@ -14,7 +26,7 @@ shoppingCartRouter.post("/:id/add/:productsId", async (req, res, next) => {
       if (products) {
         const newProducts = { ...products.toObject(), quantity: req.body.quantity }
   
-        const isProductThere = await UserModel.findProductsInCart(
+        const isProductThere = await cartModel.findProductsInCart(
           req.params.id,
           req.params.productsId
         )
