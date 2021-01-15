@@ -10,7 +10,7 @@ shoppingCartRouter.post("/", async (req, res, next) => {
       const newCart = new cartModel(req.body)
       const { _id } = await newCart.save()
   
-      res.status(201).send(_id)
+      res.status(201).send(newCart)
     } catch (error) {
       next(error)
     }
