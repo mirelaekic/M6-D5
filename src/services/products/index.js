@@ -33,6 +33,20 @@ router.get("/category/:category", async (req, res, next) => {
     next(error)
   }
 })
+router.get("/name/:name", async (req, res, next) => {
+  try {
+    //const products = await ProductSchema.find({name: req.params.name})   //find is the equivalent of our generic read of the whole json file
+    const filteredProducts = await ProductSchema.find(
+      {
+          name: {$regex: new RegExp('^' + req.params.name, 'i')}
+      }
+    )
+    res.send(filteredProducts)
+  } catch (error) {
+    next(error)
+  }
+})
+
 
 router.get("/:id", async (req, res, next) => {
   try {
