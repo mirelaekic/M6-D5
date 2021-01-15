@@ -7,6 +7,7 @@ const ReviewSchema = new Schema(
       required: true,
     },
     comment: { type: String, required: true },
+    gender:{type: String, required: true},
     rate:{type: Number, required: true},
   },
   {

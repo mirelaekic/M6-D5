@@ -18,7 +18,16 @@ const cloudMulter =  multer({ storage: cloudStorage})
 
 router.get("/", async (req, res, next) => {
   try {
+  
     const products = await ProductSchema.find()   //find is the equivalent of our generic read of the whole json file
+    res.send(products)
+  } catch (error) {
+    next(error)
+  }
+})
+router.get("/category/:category", async (req, res, next) => {
+  try {
+    const products = await ProductSchema.find({category: req.params.category})   //find is the equivalent of our generic read of the whole json file
     res.send(products)
   } catch (error) {
     next(error)
@@ -110,7 +119,7 @@ router.delete("/:id", async (req, res, next) => {
 router.post("/:id/reviews/", async (req, res, next) => {
     try {
       const newReview = { ...req.body, date: new Date() }
-  
+      console.log(newReview)
       const updatedProduct = await ProductSchema.findByIdAndUpdate(
         req.params.id,
         {
@@ -120,6 +129,7 @@ router.post("/:id/reviews/", async (req, res, next) => {
         },
         { runValidators: true, new: true }
       )
+      console.log(updatedProduct)
       res.status(201).send(updatedProduct)
     } catch (error) {
       next(error)
