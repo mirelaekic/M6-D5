@@ -2,6 +2,30 @@ const express = require("express")
 const mongoose = require("mongoose")
 const ProductSchema = require("./schema")
 const router = express.Router()
+const multer = require("multer")
+
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+    cb(null, './uploads/');
+  },
+  filename: function(req, file, cb) {
+    cb(null, file.originalname);
+  }
+});
+
+const fileFilter = (req, file, cb) => {
+  // reject a file
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+    cb(null, false);
+  } else {
+    cb(null, false);
+  }
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter
+});
 
 /*
 .map((product) => product.price * product.quantity)
@@ -31,16 +55,38 @@ router.get("/:id", async (req, res, next) => {
     next("A problem occurred!")
   }
 })
+const Product = require("./schema");
 
-router.post("/", async (req, res, next) => {
-  try {
-    const newproduct = new ProductSchema(req.body) //this is how we create the instance for the new element that we're going to add (that we pass between parenthesis)
-    const { _id } = await newproduct.save()       // we add it through the save()
-
-    res.status(201).send(newproduct)
-  } catch (error) {
-    next(error)
-  }
+router.post("/",upload.single('productImage'), async (req, res, next) => {
+  const product = new Product({
+    _id: new mongoose.Types.ObjectId(),
+    name: req.body.name,
+    price: req.body.price,
+    productImage: req.file.path 
+  });
+  product
+    .save()
+    .then(result => {
+      console.log(result);
+      res.status(201).json({
+        message: "Created product successfully",
+        createdProduct: {
+            name: result.name,
+            price: result.price,
+            _id: result._id,
+            request: {
+                type: 'GET',
+                url: "http://localhost:3000/products/" + result._id
+            }
+        }
+      });
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({
+        error: err
+      });
+    });
 })
 
 router.put("/:id", async (req, res, next) => {

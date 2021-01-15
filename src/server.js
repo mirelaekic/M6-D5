@@ -18,8 +18,8 @@ const port = process.env.PORT
 
 const staticFolderPath = join(__dirname, "../public");
 server.use(express.static(staticFolderPath));
+server.use('/uploads', express.static('uploads'));
 server.use(express.json());
-
 server.use(cors());
 
 server.use("/products", productsRouter);
