@@ -3,7 +3,6 @@ const cors = require("cors")
 const { join } = require("path")
 const listEndpoints = require("express-list-endpoints")
 const mongoose = require("mongoose")
-
 const productsRouter = require("./services/products")
 const shoppingCartRouter = require("./services/shoppingCart")
 
@@ -24,7 +23,7 @@ server.use(express.json());
 server.use(cors());
 
 server.use("/products", productsRouter);
-server.use("/shoppingcart", shoppingCartRouter);
+//server.use("/shoppingcart", shoppingCartRouter);
 
 server.use(badRequestHandler)
 server.use(notFoundHandler)
