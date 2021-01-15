@@ -2,6 +2,10 @@ const { Schema, model } = require("mongoose");
 
 const cartSchema = new Schema(
   {
+    name: {
+        type: String,
+        required: true,
+      },
     cart: [
       {
         name: String,
