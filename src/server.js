@@ -24,7 +24,7 @@ server.use(express.json());
 server.use(cors());
 
 server.use("/products", productsRouter);
-server.use("/shoppingcart", shoppingCartRouter);
+server.use("/shop", shoppingCartRouter);
 
 server.use(badRequestHandler)
 server.use(notFoundHandler)
@@ -36,7 +36,7 @@ mongoose
   .connect(process.env.MONGO_CONNECTION, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-  })
+  })    
   .then(
     server.listen(port, () => {
       console.log("Running on port", port)
