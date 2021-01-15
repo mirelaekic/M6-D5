@@ -23,7 +23,7 @@ server.use(express.json());
 server.use(cors());
 
 server.use("/products", productsRouter);
-//server.use("/shoppingcart", shoppingCartRouter);
+server.use("/shop", shoppingCartRouter);
 
 server.use(badRequestHandler)
 server.use(notFoundHandler)
